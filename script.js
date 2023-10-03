@@ -8,8 +8,23 @@ const outputDir = "./output";
 
 const filesToConvert = [
     // Files to convert here...
-    "demo.mkv"
+    //"demo.mkv"
 ];
+
+function searchFilesInDir() {
+    try {
+        // Add file to filesToConvert array
+        const files = fs.readdirSync(inputDir);
+        filesToConvert.push(...files);
+    } catch(err) {
+        //handle error in search
+        console.error(`Error reading directory: ${err}`);
+    }
+}
+
+function clearFilesToConvert() {
+    filesToConvert.length = 0
+}
 
 let successCount = 0; // Counter for successful conversions
 let errorCount = 0; // Counter for files failed to be converted
@@ -21,7 +36,8 @@ async function convertToH265() {
 
         try {
             await exec(
-                `ffmpeg -i ${inputFile} -c:v libx265 -c:a copy -x265-params crf=25 ${outputFile}`
+                `ffmpeg -i ${inputFile} -c:v libx265 -c:a copy -x265-params crf=25 ${outputFile}`,
+                { maxBuffer: 10 * 1024 * 1024 } // change default maxBuffer limit to 10 GB
             );
 
             console.log(`Video ${outputFile} has been successfully converted.`);
@@ -33,6 +49,8 @@ async function convertToH265() {
     }
 }
 
+clearFilesToConvert()
+searchFilesInDir()
 convertToH265().then(() => {
     console.log(`All videos have been processed! ${successCount} video${successCount < 2 ? '' : 's'} were successfully converted, ${errorCount} video${errorCount < 2 ? '' : 's'} failed to be converted.`);
 });
