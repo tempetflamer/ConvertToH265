@@ -3,15 +3,12 @@ const exec = util.promisify(require("child_process").exec);
 const fs = require("fs");
 const path = require("path");
 
-const inputDir = "./input";
-const outputDir = "./output";
-
 const filesToConvert = [
     // Files to convert here...
     //"demo.mkv"
 ];
 
-function searchFilesInDir() {
+function searchFilesInDir(inputDir = "./input") {
     try {
         // Add file to filesToConvert array
         const files = fs.readdirSync(inputDir);
@@ -29,10 +26,20 @@ function clearFilesToConvert() {
 let successCount = 0; // Counter for successful conversions
 let errorCount = 0; // Counter for files failed to be converted
 
-async function convertToH265() {
+async function convertToH265(inputDir = "./input", outputDir = "./output") {
     for(let i = 0; i < filesToConvert.length; i++) {
-        const inputFile = path.join(inputDir, filesToConvert[i]);
-        const outputFile = path.join(outputDir, filesToConvert[i]);
+
+        let inputFile;
+        let outputFile;
+
+        filesToConvert[i].split(".").pop() === "m3u8" ? (
+            // directory output, add a 0 before if iteration numbers < 10, iteration + 1
+            inputFile = filesToConvert[i],
+            outputFile = path.join(outputDir, `${i < 9 ? "0" : ""}${i + 1}.mp4`)
+        ) : (
+            inputFile = path.join(inputDir, filesToConvert[i]),
+            outputFile = path.join(outputDir, filesToConvert[i])
+        )
 
         try {
             await exec(
