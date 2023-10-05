@@ -43,7 +43,7 @@ async function convertToH265(inputDir = "./input", outputDir = "./output") {
 
         try {
             await exec(
-                `ffmpeg -i ${inputFile} -c:v libx265 -c:a copy -x265-params crf=25 ${outputFile}`,
+                `ffmpeg -i "${inputFile}" -c:v libx265 -c:a copy -x265-params crf=25 "${outputFile}"`, //Quotes are essential to avoid whitespace errors
                 { maxBuffer: 10 * 1024 * 1024 } // change default maxBuffer limit to 10 GB
             );
 
